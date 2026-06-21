@@ -55,6 +55,21 @@ Flatten → Dropout(0.5) → FC(4096→512) → ReLU → FC(512→4)
 
 Most misclassifications occur between **adjacent severity stages** (e.g. VeryMildDemented ↔ NonDemented, MildDemented ↔ VeryMildDemented), which aligns with the clinical reality that these stages are visually similar on MRI — rather than indicating random model error.
 
+### Why is OASIS accuracy higher than the Mendeley test accuracy?
+
+At first glance, the OASIS validation accuracy looks better than the Mendeley test accuracy, but this is **not because the model generalizes better** — it's a class imbalance effect:
+
+| Dataset | NonDemented share | ModerateDemented share | Largest class share |
+|---|---|---|---|
+| Mendeley (test) | 28.1% | 19.1% | 28.1% |
+| OASIS (validation) | 50.0% | 1.0% | 50.0% |
+
+OASIS is dominated by a single class (50% NonDemented), so a model only needs to be reliable on that one majority class to post a high overall accuracy. Mendeley's test set is fairly balanced across all four classes, which makes it a more honest measure of model performance.
+
+Looking at **per-class accuracy** on Mendeley reveals the model's real weak spot: it drops to ~90–94% specifically on **NonDemented** and **VeryMildDemented** — the two stages that look most visually similar on MRI (subtle, early-stage atrophy is genuinely hard to distinguish from a healthy scan). On OASIS, the model scores 99%+ on every individual class, suggesting those images may also be more consistent/cleaner, not just that the model learned a more general representation.
+
+**Takeaway:** the Mendeley balanced test accuracy (93.2%) is the more meaningful number for judging model quality; the OASIS score should be read as "performs near-perfectly on an imbalanced, majority-class-heavy set" rather than "generalizes better."
+
 ## 📁 Repository Structure
 
 ```
@@ -115,9 +130,6 @@ model.eval()
 - Address class imbalance (ModerateDemented is underrepresented) with weighted loss or oversampling
 - Deploy as a simple inference API/demo
 
-## ⚠️ Disclaimer
-
-This project is for educational and research purposes only. It is **not** a validated clinical diagnostic tool and should not be used for real medical decision-making.
 
 ## 🧰 Tech Stack
 
