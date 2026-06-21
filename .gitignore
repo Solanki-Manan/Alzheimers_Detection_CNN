@@ -1,0 +1,7 @@
+AugmentedAlzheimerDataset/
+OriginalDataset/
+final_model copy.ipynb
+__pycache__/
+.ipynb_checkpoints/
+final_model.ipynb
+*.pdf
